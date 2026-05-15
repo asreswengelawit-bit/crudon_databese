@@ -1,6 +1,7 @@
 const express = require('express');
 const { default: mongoose } = require('mongoose');
 const app = express();
+app.use(express.json());
 app.listen (3000,() =>{
     console.log("server is runing on port 3000");
 });
@@ -24,6 +25,28 @@ app.get('/products', async (req, res) => {
         const products = await Product.find();
 
         res.json(products);
+
+    } catch (error) {
+
+        res.status(500).json({
+            message: error.message
+        });
+
+    }
+
+});
+app.post('/products', async (req, res) => {
+
+    try {
+
+        const product = new Product({
+            name: req.body.name,
+            price: req.body.price
+        });
+
+        const savedProduct = await product.save();
+
+        res.status(201).json(savedProduct);
 
     } catch (error) {
 
