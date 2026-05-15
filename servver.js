@@ -1,6 +1,7 @@
 const express = require('express');
 const { default: mongoose } = require('mongoose');
 const app = express();
+//put mathod works when we write app.use(express.json());at the top like blow
 app.use(express.json());
 app.listen (3000,() =>{
     console.log("server is runing on port 3000");
@@ -18,7 +19,9 @@ const ProductSchema = new mongoose.Schema({
 });
 
 const Product = mongoose.model('Product', ProductSchema);
+// i mad a misstacke beror the const product ,i was write Product.findByIdAndUpdate();at the top
 Product.findByIdAndUpdate();
+Product.findByIdAndDelete();
 app.get('/products', async (req, res) => {
 
     try {
@@ -78,6 +81,32 @@ app.put('/products/:id', async (req, res) => {
         }
 
         res.json(updatedProduct);
+
+    } catch (error) {
+
+        res.status(500).json({
+            message: error.message
+        });
+
+    }
+
+});
+app.delete('/products/:id', async (req, res) => {
+
+    try {
+
+        const deletedProduct = await Product.findByIdAndDelete(req.params.id);
+
+        if (!deletedProduct) {
+            return res.status(404).json({
+                message: 'Product not found'
+            });
+        }
+
+        res.json({
+            message: 'Product deleted successfully',
+            product: deletedProduct
+        });
 
     } catch (error) {
 
