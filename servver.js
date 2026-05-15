@@ -18,6 +18,7 @@ const ProductSchema = new mongoose.Schema({
 });
 
 const Product = mongoose.model('Product', ProductSchema);
+Product.findByIdAndUpdate();
 app.get('/products', async (req, res) => {
 
     try {
@@ -47,6 +48,36 @@ app.post('/products', async (req, res) => {
         const savedProduct = await product.save();
 
         res.status(201).json(savedProduct);
+
+    } catch (error) {
+
+        res.status(500).json({
+            message: error.message
+        });
+
+    }
+
+});//use to updated our databese product 
+app.put('/products/:id', async (req, res) => {
+
+    try {
+
+        const updatedProduct = await Product.findByIdAndUpdate(
+            req.params.id,
+            {
+                name: req.body.name,
+                price: req.body.price
+            },
+            { new: true }
+        );
+
+        if (!updatedProduct) {
+            return res.status(404).json({
+                message: 'Product not found'
+            });
+        }
+
+        res.json(updatedProduct);
 
     } catch (error) {
 
