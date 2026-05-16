@@ -1,27 +1,53 @@
 const express = require('express');
 const { default: mongoose } = require('mongoose');
+
 const app = express();
-//put mathod works when we write app.use(express.json());at the top like blow
+
+
+// MIDDLEWARE
+app.use(express.static('public'));
 app.use(express.json());
-app.listen (3000,() =>{
-    console.log("server is runing on port 3000");
-});
-app.get ('/',(req,res)=>{
-    res.send("hello from node api")
+
+
+// SERVER
+app.listen(3000, () => {
+    console.log("server is running on port 3000");
 });
 
+
+// HOME ROUTE
+app.get('/', (req, res) => {
+    res.send("hello from node api");
+});
+
+
+// DATABASE CONNECTION
 mongoose.connect('mongodb://127.0.0.1:27017/testdb')
 .then(() => console.log('Connected'))
 .catch(err => console.log(err));
+
+
+// SCHEMA
 const ProductSchema = new mongoose.Schema({
+
     name: String,
-    price: Number
+
+    price: Number,
+
+    currency: String
+
 });
 
+
+// MODEL
 const Product = mongoose.model('Product', ProductSchema);
-// i mad a misstacke beror the const product ,i was write Product.findByIdAndUpdate();at the top
-Product.findByIdAndUpdate();
-Product.findByIdAndDelete();
+
+
+
+
+// ======================
+// GET PRODUCTS
+// ======================
 app.get('/products', async (req, res) => {
 
     try {
@@ -39,13 +65,25 @@ app.get('/products', async (req, res) => {
     }
 
 });
+
+
+
+
+// ======================
+// CREATE PRODUCT
+// ======================
 app.post('/products', async (req, res) => {
 
     try {
 
         const product = new Product({
+
             name: req.body.name,
-            price: req.body.price
+
+            price: req.body.price,
+
+            currency: req.body.currency
+
         });
 
         const savedProduct = await product.save();
@@ -60,24 +98,42 @@ app.post('/products', async (req, res) => {
 
     }
 
-});//use to updated our databese product 
+});
+
+
+
+
+// ======================
+// UPDATE PRODUCT
+// ======================
 app.put('/products/:id', async (req, res) => {
 
     try {
 
         const updatedProduct = await Product.findByIdAndUpdate(
+
             req.params.id,
+
             {
+
                 name: req.body.name,
-                price: req.body.price
+
+                price: req.body.price,
+
+                currency: req.body.currency
+
             },
+
             { new: true }
+
         );
 
         if (!updatedProduct) {
+
             return res.status(404).json({
                 message: 'Product not found'
             });
+
         }
 
         res.json(updatedProduct);
@@ -91,6 +147,13 @@ app.put('/products/:id', async (req, res) => {
     }
 
 });
+
+
+
+
+// ======================
+// DELETE PRODUCT
+// ======================
 app.delete('/products/:id', async (req, res) => {
 
     try {
@@ -98,9 +161,11 @@ app.delete('/products/:id', async (req, res) => {
         const deletedProduct = await Product.findByIdAndDelete(req.params.id);
 
         if (!deletedProduct) {
+
             return res.status(404).json({
                 message: 'Product not found'
             });
+
         }
 
         res.json({
